@@ -87,7 +87,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Today",
+          "To-Day",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
