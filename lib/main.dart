@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './db_handler.dart';
 import './todo.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,11 +26,16 @@ class TodoListScreen extends StatefulWidget {
 
 class _TodoListScreenState extends State<TodoListScreen> {
   List<Todo> _todos = [];
+  final checkSoundEffect = CheckSoundEffect();
 
   @override
   void initState() {
     super.initState();
     _loadTodos();
+  }
+
+  void _playCheckSound() {
+    checkSoundEffect.play();
   }
 
   void _loadTodos() async {
@@ -115,6 +121,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                       if (newValue) {
                         Todo movingOnTodo = _todos.removeAt(index);
                         _todos.add(movingOnTodo);
+                        _playCheckSound();
                       }
                     },
                     activeColor: Colors.blue,
@@ -195,5 +202,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
         child: Icon(Icons.add, color: Colors.white),
       ),
     );
+  }
+}
+
+class CheckSoundEffect {
+  AudioPlayer? _player;
+
+  Future<void> play() async {
+    _player?.dispose();
+    _player = AudioPlayer();
+    await _player!.play(AssetSource('pop_sound_effect.mp3'));
   }
 }
