@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './db_handler.dart';
+import './todo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,26 +24,40 @@ class TodoListScreen extends StatefulWidget {
 }
 
 class _TodoListScreenState extends State<TodoListScreen> {
-  List<String> _todos = [];
+  List<Todo> _todos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodos();
+  }
+
+  void _loadTodos() async {
+    List<Todo> todos = await DbHandler.getTodos();
+    setState(() {
+      _todos = todos;
+    });
+  }
 
   void _addTodo() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String newTodo = "";
+        String newTodoContent = "";
         return AlertDialog(
           title: Text("Add a new To-Do"),
           content: TextField(
             onChanged: (value) {
-              newTodo = value;
+              newTodoContent = value;
             },
           ),
           actions: [
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  if (newTodo.isNotEmpty) {
-                    _todos.add(newTodo);
+                  if (newTodoContent.isNotEmpty) {
+                    DbHandler.insertTodo(newTodoContent);
+                    _todos.add(Todo(content: newTodoContent));
                   }
                   Navigator.pop(context);
                 });
@@ -82,34 +97,58 @@ class _TodoListScreenState extends State<TodoListScreen> {
             elevation: 4,
             margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: ListTile(
-              title: Text(_todos[index], style: TextStyle(fontSize: 18)),
+              title: Text(
+                _todos[index].content,
+                style: TextStyle(fontSize: 18),
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Checkbox(
+                    value: _todos[index].completed,
+                    onChanged: (bool? newValue) {
+                      Todo targetTodo = _todos[index];
+                      Todo movingOnTodo = _todos.removeAt(index);
+                      DbHandler.updateCompletedTodo(targetTodo.id!, newValue!);
+                      setState(() {
+                        targetTodo.completed = newValue;
+                      });
+                      _todos.add(movingOnTodo);
+                    },
+                    activeColor: Colors.blue,
+                    checkColor: Colors.white,
+                  ),
+
                   IconButton(
                     icon: Icon(Icons.edit),
                     onPressed: () {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          String targetTodo = _todos[index];
-                          String updatedTodo = "";
+                          Todo targetTodo = _todos[index];
+                          String updatedTodoContent = "";
                           TextEditingController controller =
-                              TextEditingController(text: targetTodo);
+                              TextEditingController(text: targetTodo.content);
                           return AlertDialog(
                             title: Text('Update To-Do'),
                             content: TextField(
                               controller: controller,
                               onChanged: (value) {
-                                updatedTodo = value;
+                                updatedTodoContent = value;
                               },
                             ),
                             actions: [
                               ElevatedButton(
                                 onPressed: () {
+                                  Todo targetTodo = _todos[index];
                                   setState(() {
-                                    if (updatedTodo.isNotEmpty) {
-                                      _todos[index] = updatedTodo;
+                                    if (updatedTodoContent.isNotEmpty) {
+                                      DbHandler.updateTodo(
+                                        targetTodo.id!,
+                                        updatedTodoContent,
+                                      );
+                                      _todos[index].content =
+                                          updatedTodoContent;
                                     }
                                     Navigator.pop(context);
                                   });
@@ -135,7 +174,9 @@ class _TodoListScreenState extends State<TodoListScreen> {
                   IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
+                      Todo targetTodo = _todos[index];
                       setState(() {
+                        DbHandler.deleteTodo(targetTodo.id!);
                         _todos.removeAt(index);
                       });
                     },

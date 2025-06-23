@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:today/todo.dart';
 
 class DbHandler {
   //Init.
@@ -24,7 +25,8 @@ class DbHandler {
     await database.execute('''
       CREATE TABLE IF NOT EXISTS todos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL
+        content TEXT NOT NULL,
+        completed INTEGER
       )
     ''');
   }
@@ -35,9 +37,10 @@ class DbHandler {
     return await db.insert('todos', {'content': content});
   }
 
-  static Future<List<Map<String, dynamic>>> getTodos() async {
+  static Future<List<Todo>> getTodos() async {
     final database = await DbHandler.database;
-    return await database.query('todos');
+    final maps = await database.query('todos');
+    return maps.map((map) => Todo.fromMap(map)).toList();
   }
 
   static Future<int> updateTodo(int id, String content) async {
@@ -45,6 +48,16 @@ class DbHandler {
     return await db.update(
       'todos',
       {'content': content},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  static Future<int> updateCompletedTodo(int id, bool completed) async {
+    final db = await database;
+    return await db.update(
+      'todos',
+      {'completed': completed ? 1 : 0},
       where: 'id = ?',
       whereArgs: [id],
     );
