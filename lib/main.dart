@@ -108,12 +108,14 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     value: _todos[index].completed,
                     onChanged: (bool? newValue) {
                       Todo targetTodo = _todos[index];
-                      Todo movingOnTodo = _todos.removeAt(index);
                       DbHandler.updateCompletedTodo(targetTodo.id!, newValue!);
                       setState(() {
                         targetTodo.completed = newValue;
                       });
-                      _todos.add(movingOnTodo);
+                      if (newValue) {
+                        Todo movingOnTodo = _todos.removeAt(index);
+                        _todos.add(movingOnTodo);
+                      }
                     },
                     activeColor: Colors.blue,
                     checkColor: Colors.white,
