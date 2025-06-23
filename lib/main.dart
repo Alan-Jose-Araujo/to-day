@@ -51,7 +51,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
       builder: (BuildContext context) {
         String newTodoContent = "";
         return AlertDialog(
-          title: Text("Add a new To-Do"),
+          title: Text("Adicionar nova tarefa"),
           content: TextField(
             onChanged: (value) {
               newTodoContent = value;
@@ -87,7 +87,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "My To-Do List",
+          "Today",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -139,7 +139,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                           TextEditingController controller =
                               TextEditingController(text: targetTodo.content);
                           return AlertDialog(
-                            title: Text('Update To-Do'),
+                            title: Text('Atualizar tarefa'),
                             content: TextField(
                               controller: controller,
                               onChanged: (value) {
@@ -172,7 +172,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                                         Colors.white,
                                       ),
                                 ),
-                                child: Text('Update To-Do'),
+                                child: Text('Salvar'),
                               ),
                             ],
                           );
