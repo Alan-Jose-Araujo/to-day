@@ -38,8 +38,8 @@ class DbHandler {
   }
 
   static Future<List<Todo>> getTodos() async {
-    final database = await DbHandler.database;
-    final maps = await database.query('todos');
+    final db = await DbHandler.database;
+    final maps = await db.query('todos');
     return maps.map((map) => Todo.fromMap(map)).toList();
   }
 

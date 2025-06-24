@@ -59,14 +59,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (newTodoContent.isNotEmpty) {
-                    DbHandler.insertTodo(newTodoContent);
-                    _todos.add(Todo(content: newTodoContent));
-                  }
+              onPressed: () async {
+                if (newTodoContent.isNotEmpty) {
+                  final id = await DbHandler.insertTodo(newTodoContent);
+                  if (!mounted) return;
+                  setState(() {
+                    _todos.add(Todo(id: id, content: newTodoContent));
+                  });
                   Navigator.pop(context);
-                });
+                }
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
@@ -114,7 +115,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     value: _todos[index].completed,
                     onChanged: (bool? newValue) {
                       Todo targetTodo = _todos[index];
-                      DbHandler.updateCompletedTodo(targetTodo.id!, newValue!);
+                      DbHandler.updateCompletedTodo(targetTodo.id, newValue!);
                       setState(() {
                         targetTodo.completed = newValue;
                       });
@@ -153,7 +154,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                                   setState(() {
                                     if (updatedTodoContent.isNotEmpty) {
                                       DbHandler.updateTodo(
-                                        targetTodo.id!,
+                                        targetTodo.id,
                                         updatedTodoContent,
                                       );
                                       _todos[index].content =
@@ -213,7 +214,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                                 onPressed: () {
                                   Todo targetTodo = _todos[index];
                                   setState(() {
-                                    DbHandler.deleteTodo(targetTodo.id!);
+                                    DbHandler.deleteTodo(targetTodo.id);
                                     _todos.removeAt(index);
                                     Navigator.pop(context);
                                   });
