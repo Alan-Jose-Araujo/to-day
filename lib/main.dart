@@ -183,11 +183,57 @@ class _TodoListScreenState extends State<TodoListScreen> {
                   IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
-                      Todo targetTodo = _todos[index];
-                      setState(() {
-                        DbHandler.deleteTodo(targetTodo.id!);
-                        _todos.removeAt(index);
-                      });
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Tem certeza que deseja excluir esta tarefa?',
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    Navigator.pop(context);
+                                  });
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                        Colors.blueGrey,
+                                      ),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                        Colors.white,
+                                      ),
+                                ),
+                                child: Text('Não'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Todo targetTodo = _todos[index];
+                                  setState(() {
+                                    DbHandler.deleteTodo(targetTodo.id!);
+                                    _todos.removeAt(index);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                        Colors.blue,
+                                      ),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                        Colors.white,
+                                      ),
+                                ),
+                                child: Text('Sim'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                 ],
